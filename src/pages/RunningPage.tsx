@@ -1,24 +1,275 @@
-import React from 'react';
-import { PlaceholderState } from '../components/feedback/PlaceholderState';
-import { Footprints } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { defaultStorageEngine } from '../services/storage/StorageEngine';
+import { defaultGpsProvider } from '../services/running/BrowserGpsLocationProvider';
+import { defaultRouteProvider } from '../services/running/DefaultRouteProvider';
+import { RunRecord, IStorageEngine } from '../services/storage/types';
+import {
+  IGpsLocationProvider,
+  IRouteProvider,
+  GpsPositionSample,
+  GpsError,
+} from '../services/running/types';
+import {
+  calculateHaversineDistance,
+  filterGpsSample,
+  calculatePace,
+} from '../services/running/gpsUtils';
+import { getLocalDateString } from '../services/storage/streakUtils';
 
-export const RunningPage: React.FC = () => {
+import { RunGoalSelector } from '../features/running/components/RunGoalSelector';
+import { ActiveRunPanel } from '../features/running/components/ActiveRunPanel';
+import { RouteDiscoveryPanel } from '../features/running/components/RouteDiscoveryPanel';
+import { RunHistoryList } from '../features/running/components/RunHistoryList';
+import { PixelButton } from '../components/pixel-ui/PixelButton';
+
+import { Footprints, AlertCircle, RefreshCw } from 'lucide-react';
+import '../features/running/RunningPage.css';
+
+interface RunningPageProps {
+  storageEngine?: IStorageEngine;
+  gpsProvider?: IGpsLocationProvider;
+  routeProvider?: IRouteProvider;
+}
+
+export const RunningPage: React.FC<RunningPageProps> = ({
+  storageEngine = defaultStorageEngine,
+  gpsProvider = defaultGpsProvider,
+  routeProvider = defaultRouteProvider,
+}) => {
+  const [runs, setRuns] = useState<RunRecord[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [storageError, setStorageError] = useState<string | null>(null);
+
+  // Active Session State
+  const [sessionState, setSessionState] = useState<'idle' | 'running' | 'paused'>('idle');
+  const [targetDistanceKm, setTargetDistanceKm] = useState<number | undefined>(3.0);
+  const [isTimedOnly, setIsTimedOnly] = useState<boolean>(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
+  const [measuredDistanceKm, setMeasuredDistanceKm] = useState<number>(0);
+  const [pathCoordinates, setPathCoordinates] = useState<
+    Array<{ lat: number; lng: number; timestamp: number }>
+  >([]);
+
+  // GPS Status
+  const [gpsStatus, setGpsStatus] = useState<
+    'searching' | 'tracking' | 'warning' | 'paused' | 'offline'
+  >('offline');
+  const [gpsError, setGpsError] = useState<string | null>(null);
+
+  const lastSampleRef = useRef<GpsPositionSample | undefined>(undefined);
+  const sessionStartTimeRef = useRef<number>(Date.now());
+
+  // Load past runs
+  const loadRuns = useCallback(async () => {
+    setIsLoading(true);
+    setStorageError(null);
+    try {
+      await storageEngine.init();
+      const fetchedRuns = await storageEngine.getRuns();
+      setRuns(fetchedRuns);
+    } catch (err: any) {
+      console.error('Failed to load runs from storage:', err);
+      setStorageError(err.message || 'Unable to access local IndexedDB storage.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [storageEngine]);
+
+  useEffect(() => {
+    loadRuns();
+  }, [loadRuns]);
+
+  // Session timer ticker (only ticks when sessionState === 'running')
+  useEffect(() => {
+    let interval: any = null;
+    if (sessionState === 'running') {
+      interval = setInterval(() => {
+        setElapsedSeconds((prev) => prev + 1);
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [sessionState]);
+
+  // Clean up GPS on unmount
+  useEffect(() => {
+    return () => {
+      gpsProvider.stopTracking();
+    };
+  }, [gpsProvider]);
+
+  // Start Session Action
+  const handleStartSession = (distanceKm?: number, timedOnly = false) => {
+    setTargetDistanceKm(distanceKm);
+    setIsTimedOnly(timedOnly);
+    setElapsedSeconds(0);
+    setMeasuredDistanceKm(0);
+    setPathCoordinates([]);
+    setGpsError(null);
+    lastSampleRef.current = undefined;
+    sessionStartTimeRef.current = Date.now();
+
+    setSessionState('running');
+
+    if (timedOnly || !gpsProvider.isSupported()) {
+      setGpsStatus('offline');
+      if (!timedOnly && !gpsProvider.isSupported()) {
+        setGpsError('Browser Geolocation is not supported. Running in Timed Session mode.');
+      }
+      return;
+    }
+
+    setGpsStatus('searching');
+    gpsProvider.startTracking(
+      (sample: GpsPositionSample) => {
+        const prev = lastSampleRef.current;
+        if (filterGpsSample(sample, prev)) {
+          if (prev) {
+            const addedKm = calculateHaversineDistance(prev.lat, prev.lng, sample.lat, sample.lng);
+            setMeasuredDistanceKm((oldDist) => oldDist + addedKm);
+          }
+          lastSampleRef.current = sample;
+          setPathCoordinates((oldPath) => [
+            ...oldPath,
+            { lat: sample.lat, lng: sample.lng, timestamp: sample.timestamp },
+          ]);
+          setGpsStatus(sample.accuracy > 25 ? 'warning' : 'tracking');
+        }
+      },
+      (err: GpsError) => {
+        console.warn('GPS location error:', err);
+        setGpsError(err.message);
+        setGpsStatus('offline');
+      }
+    );
+  };
+
+  // Pause / Resume Action
+  const handlePauseToggle = () => {
+    if (sessionState === 'running') {
+      setSessionState('paused');
+      setGpsStatus('paused');
+    } else if (sessionState === 'paused') {
+      setSessionState('running');
+      if (!isTimedOnly && lastSampleRef.current) {
+        setGpsStatus(lastSampleRef.current.accuracy > 25 ? 'warning' : 'tracking');
+      } else {
+        setGpsStatus('offline');
+      }
+    }
+  };
+
+  // Finish & Save Session
+  const handleFinishSave = async () => {
+    gpsProvider.stopTracking();
+
+    const now = Date.now();
+    const startTime = sessionStartTimeRef.current;
+    const finalDistance = isTimedOnly ? 0 : measuredDistanceKm;
+    const avgPace = calculatePace(finalDistance, elapsedSeconds);
+
+    const newRun: Omit<RunRecord, 'id'> = {
+      startTime,
+      endTime: now,
+      dateString: getLocalDateString(now),
+      distanceKm: Math.round(finalDistance * 100) / 100,
+      durationSeconds: elapsedSeconds,
+      avgPaceMinPerKm: avgPace || undefined,
+      targetDistanceKm,
+      hasGpsData: !isTimedOnly && pathCoordinates.length > 0,
+      pathCoordinates: pathCoordinates.length > 0 ? pathCoordinates : undefined,
+      isRuralFallback: isTimedOnly || pathCoordinates.length === 0,
+    };
+
+    try {
+      await storageEngine.createRun(newRun);
+      setSessionState('idle');
+      await loadRuns();
+    } catch (err: any) {
+      console.error('Failed to save run record:', err);
+      setStorageError(err.message || 'Failed to save run session record.');
+      setSessionState('idle');
+    }
+  };
+
+  // Discard Unfinished Session
+  const handleDiscard = () => {
+    gpsProvider.stopTracking();
+    setSessionState('idle');
+    setElapsedSeconds(0);
+    setMeasuredDistanceKm(0);
+    setPathCoordinates([]);
+    lastSampleRef.current = undefined;
+  };
+
+  // Delete Record
+  const handleDeleteRun = async (id: string) => {
+    await storageEngine.deleteRun(id);
+    await loadRuns();
+  };
+
   return (
-    <div className="running-page">
-      <PlaceholderState
-        title="Running Companion"
-        badge="Section 03 · Outdoor Trail Adventures"
-        icon={<Footprints size={24} />}
-        description="Your Running Companion is designed to encourage outdoor movement without pressure or competitive stress—helping you enjoy outdoor trails and fresh air."
-        featuresList={[
-          "Track running distance, duration, and outdoor pace",
-          "Discover nature-friendly running routes in your surrounding environment",
-          "Gentle customizable reminders from your spirit friend to encourage routine runs",
-          "Privacy-first GPS tracking with offline local session saving"
-        ]}
-        actionText="Back to AI Friend"
-        actionPath="/"
-      />
+    <div className="running-page-container">
+      {/* Hero Banner Header */}
+      <div className="running-hero-banner">
+        <div className="running-title-group">
+          <h1>
+            <Footprints size={28} />
+            Running Companion
+          </h1>
+          <p className="running-subtitle">
+            Enjoy non-competitive outdoor runs and walks. Move at your own comfortable pace in nature.
+          </p>
+        </div>
+      </div>
+
+      {/* Storage & GPS Error Banners */}
+      {storageError && (
+        <div className="form-error-alert" role="alert">
+          <AlertCircle size={20} />
+          <span>{storageError}</span>
+          <PixelButton variant="ghost" size="sm" onClick={loadRuns}>
+            <RefreshCw size={14} /> Retry
+          </PixelButton>
+        </div>
+      )}
+
+      {gpsError && sessionState !== 'idle' && (
+        <div className="form-error-alert" role="alert">
+          <AlertCircle size={20} />
+          <span>{gpsError}</span>
+        </div>
+      )}
+
+      {/* Active Session HUD or Goal Selector */}
+      {sessionState !== 'idle' ? (
+        <ActiveRunPanel
+          elapsedSeconds={elapsedSeconds}
+          distanceKm={measuredDistanceKm}
+          isPaused={sessionState === 'paused'}
+          gpsStatus={gpsStatus}
+          targetDistanceKm={targetDistanceKm}
+          isTimedOnly={isTimedOnly}
+          onPauseToggle={handlePauseToggle}
+          onFinishSave={handleFinishSave}
+          onDiscard={handleDiscard}
+        />
+      ) : (
+        <RunGoalSelector onSelectGoal={handleStartSession} />
+      )}
+
+      {/* Route Discovery Section */}
+      <RouteDiscoveryPanel routeProvider={routeProvider} gpsProvider={gpsProvider} />
+
+      {/* Recent Run History */}
+      {isLoading ? (
+        <p style={{ fontFamily: 'Outfit', color: '#D1E7DD', textAlign: 'center' }}>
+          Loading your recent run history...
+        </p>
+      ) : (
+        <RunHistoryList runs={runs} onDeleteRun={handleDeleteRun} />
+      )}
     </div>
   );
 };

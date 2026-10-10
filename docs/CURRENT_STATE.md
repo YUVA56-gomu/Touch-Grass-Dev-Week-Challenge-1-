@@ -1,26 +1,22 @@
 # 🌿 TOUCH GRASS — Current Application State
 
-> **Last Updated**: October 10, 2026 · Milestone 3 Complete (AI Friend Engine & Guided Nature Experience)
+> **Last Updated**: October 10, 2026 · Milestone 7 Complete (Integration, Quality Assurance & Hacktoberfest Release)
 
 ---
 
 ## 1. System Overview
 
-TOUCH GRASS has completed **Milestone 3 (AI Friend Engine & Ambient Nature Experience)**. The AI Friend interface (`/` / `HomePage.tsx`) is now fully interactive, featuring conversation state management, local friend name customization, voice interaction abstractions, an offline Web Audio ambient nature engine, and an explicit state-machine guided nature break session.
+TOUCH GRASS has completed **Milestone 7 (Integration, Quality Assurance & Hacktoberfest Release)**. All four application sections (Home — AI Friend, Touch Grass Tracker, Running Companion, Nature Calendar) are fully integrated, verified with automated tests and static type checking, documented with honest status matrices, and prepared for public repository release under the MIT License.
 
 ---
 
 ## 2. Active Components & Services
 
-### Implemented Services (`src/services/`)
-- [`MockAIProvider.ts`](file:///d:/TouchGrass/src/services/ai/MockAIProvider.ts) — Development-only AI spirit provider with thoughtful responses, cancel token support, and simulated error injection (`isMock: true`).
-- [`FastAPILLMAdapter.ts`](file:///d:/TouchGrass/src/services/ai/FastAPILLMAdapter.ts) — Backend HTTP gateway adapter for `/api/v1/ai/chat` with automatic local fallback.
-- [`VoiceService.ts`](file:///d:/TouchGrass/src/services/voice/VoiceService.ts) — SpeechRecognition and SpeechSynthesis abstraction with graceful fallback for unsupported browsers.
-- [`AudioEngine.ts`](file:///d:/TouchGrass/src/services/audio/AudioEngine.ts) — Nature ambient sound engine with Web Audio API procedural synthesis for Forest, Meadow, and Rain scenes.
-
-### Implemented Feature Components (`src/features/friend/`)
-- [`FriendChatPanel.tsx`](file:///d:/TouchGrass/src/features/friend/components/FriendChatPanel.tsx) — Interactive spirit chat panel with customizable friend name (persisted in `localStorage`), message history, prompt chips, voice mic toggle, stop speech control, and dynamic mascot character expressions (`idle`, `listening`, `thinking`, `speaking`, `resting`).
-- [`GuidedNatureSession.tsx`](file:///d:/TouchGrass/src/features/friend/components/GuidedNatureSession.tsx) — Guided nature break modal with an explicit state machine (`idle`, `preparing`, `playing`, `paused`, `completed`, `cancelled`, `error`), scene picker, segmented story narration, ambient audio controls, text transcript, outdoor invitation, and complete unmount cleanup.
+### Core Application Sections & Routes
+1. **Home — Your AI Friend** (`/`): `HomePage.tsx`, `FriendChatPanel.tsx`, `GuidedNatureSession.tsx`, `MascotDisplay.tsx`, `AudioEngine.ts`, `VoiceService.ts`, `MockAIProvider.ts`, `FastAPILLMAdapter.ts`.
+2. **Touch Grass Tracker** (`/tracker`): `TrackerPage.tsx`, `TrackerStatsHeader.tsx`, `VisitCard.tsx`, `VisitFormModal.tsx`, `DeleteConfirmModal.tsx`, `StorageEngine.ts`, `streakUtils.ts`.
+3. **Running Companion** (`/running`): `RunningPage.tsx`, `BrowserGpsLocationProvider.ts`, `DefaultRouteProvider.ts`, `gpsUtils.ts`.
+4. **Nature Calendar** (`/calendar`): `CalendarPage.tsx`, `DaylightBanner.tsx`, `MonthNavigationHeader.tsx`, `EventCard.tsx`, `EventDetailModal.tsx`, `astronomyEngine.ts`, `SeasonalNatureProvider.ts`, `CompositeCalendarProvider.ts`.
 
 ---
 
@@ -28,22 +24,25 @@ TOUCH GRASS has completed **Milestone 3 (AI Friend Engine & Ambient Nature Exper
 
 | Feature | Status | Implementation Details |
 |---|---|---|
-| Application Shell & 4 Routes | **IMPLEMENTED** | React Router 7 with desktop header & mobile bottom bar |
-| 16-bit Visual System & Theme | **IMPLEMENTED** | CSS tokens, SVG mascot, forest landscape & pixel fonts |
-| Interactive AI Friend Conversation | **IMPLEMENTED** | `FriendChatPanel.tsx` with `MockAIProvider` & dynamic mascot states |
-| Friend Name Customization | **IMPLEMENTED** | Local persistence in `localStorage` (`touch_grass_friend_name`) |
-| Voice Speech Recognition & Synthesis | **IMPLEMENTED** | `VoiceService.ts` for Speech API with fallback notice |
-| Nature Ambient Audio Engine | **IMPLEMENTED** | `AudioEngine.ts` Web Audio API pink noise synthesis (Forest, Meadow, Rain) |
-| Guided Nature Experience | **IMPLEMENTED** | `GuidedNatureSession.tsx` explicit state machine & segmented stories |
-| Unit & Integration Test Suite | **IMPLEMENTED** | 13 Vitest unit & component tests passing |
-| Outdoor Visit Logging | **PLANNED** | Milestone 4 (IndexedDB local storage) |
-| Running GPS Route Tracking | **PLANNED** | Milestone 5 (Geolocation API & map provider) |
-| Nature Calendar Event Engine | **PLANNED** | Milestone 6 (Astronomy calculation & local events API) |
+| Application Shell & 4 Routes | **IMPLEMENTED AND VERIFIED** | React Router 7 with desktop header & mobile bottom bar |
+| 16-bit Visual System & Theme | **IMPLEMENTED AND VERIFIED** | CSS tokens, SVG mascot, forest landscape & pixel fonts |
+| Interactive AI Friend Conversation | **IMPLEMENTED AND VERIFIED** | `FriendChatPanel.tsx` with `MockAIProvider` & dynamic mascot states |
+| Nature Ambient Audio Engine | **IMPLEMENTED AND VERIFIED** | `AudioEngine.ts` Web Audio API pink noise synthesis (Forest, Meadow, Rain) |
+| Guided Nature Experience | **IMPLEMENTED AND VERIFIED** | `GuidedNatureSession.tsx` explicit state machine & segmented stories |
+| Outdoor Visit Logging | **IMPLEMENTED AND VERIFIED** | `StorageEngine.ts` & `TrackerPage.tsx` with local calendar date picker |
+| Local-First IndexedDB Storage | **IMPLEMENTED AND VERIFIED** | `touch_grass_db` (v2) `visits`, `photos`, and `runs` stores + fallback |
+| Photo Attachment & Gallery | **IMPLEMENTED AND VERIFIED** | Photo Blob storage, 5MB limit, instant URL previews & object URL cleanup |
+| Streak & Milestone Engine | **IMPLEMENTED AND VERIFIED** | Deterministic local calendar day streak calculation & 5 spirit badges |
+| Running Companion & GPS Tracker | **IMPLEMENTED AND VERIFIED** | `RunningPage.tsx`, `BrowserGpsLocationProvider`, Haversine math & GPS filter policy |
+| Nature Route Discovery | **IMPLEMENTED AND VERIFIED** | `DefaultRouteProvider` with OpenStreetMap attribution & rural fallback |
+| Nature Calendar & Astronomy Engine | **IMPLEMENTED AND VERIFIED** | `astronomyEngine.ts`, `CompositeCalendarProvider.ts`, `DaylightBanner.tsx`, `CalendarPage.tsx` |
+| Release Package & License | **IMPLEMENTED AND VERIFIED** | MIT License, `.env.example`, `.gitignore`, comprehensive README & docs |
+| Comprehensive Unit Test Suite | **IMPLEMENTED AND VERIFIED** | 8 passed test files (58 tests passed) |
 
 ---
 
-## 4. Empirical Verification Status
+## 4. Empirical Verification Evidence
 
-- **TypeScript Strict Compilation**: `npx tsc --noEmit` &rarr; `0 errors`
-- **Vitest Test Suite**: `npx vitest run` &rarr; `2 passed (13 tests)`
-- **Production Asset Build**: `npm run build` &rarr; `dist/` bundle created cleanly (`358 kB` JS, `19.8 kB` CSS)
+- **TypeScript Static Check**: `npx tsc --noEmit` &rarr; `0 errors`
+- **Vitest Unit & Integration Suite**: `npx vitest run` &rarr; `8 passed test files (58 tests passed)`
+- **Production Asset Build**: `npm run build` &rarr; `dist/` bundle created cleanly in `7.52s`
