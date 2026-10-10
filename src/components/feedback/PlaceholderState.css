@@ -1,0 +1,72 @@
+.placeholder-wrapper {
+  max-width: 680px;
+  margin: 30px auto;
+}
+
+.placeholder-card {
+  background: var(--color-forest);
+}
+
+.placeholder-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-top: 8px;
+}
+
+.placeholder-description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.placeholder-features {
+  background: rgba(13, 45, 32, 0.6);
+  border: 2px solid var(--color-emerald);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.placeholder-features__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-lime);
+  font-size: 1.3rem;
+  margin-bottom: 12px;
+}
+
+.placeholder-features__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.placeholder-features__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.98rem;
+  color: var(--text-secondary);
+}
+
+.bullet {
+  color: var(--color-warm-sunlight);
+  font-size: 1.1rem;
+}
+
+.placeholder-notice {
+  background: rgba(245, 214, 108, 0.1);
+  border: 2px dashed var(--color-warm-sunlight);
+  border-radius: 6px;
+  padding: 12px 16px;
+  color: var(--color-warm-sunlight);
+  font-size: 1.15rem;
+}
+
+.placeholder-action {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}

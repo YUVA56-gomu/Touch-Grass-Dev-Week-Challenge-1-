@@ -1,0 +1,63 @@
+.mascot-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  margin: 0 auto;
+}
+
+.mascot-speech-bubble {
+  position: relative;
+  background: var(--color-warm-sunlight);
+  color: var(--color-forest-dark);
+  border: 3px solid var(--color-forest-dark);
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 1.2rem;
+  line-height: 1.3;
+  text-align: center;
+  max-width: 320px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 0 var(--color-forest-dark);
+  animation: pixelFloat 4s ease-in-out infinite;
+}
+
+.mascot-speech-bubble__arrow {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid var(--color-warm-sunlight);
+}
+
+.mascot-speech-bubble__arrow::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid var(--color-warm-sunlight);
+}
+
+.mascot-sprite-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes armWave {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-15deg); }
+}
+
+.mascot-waving-arm {
+  transform-origin: 72px 52px;
+  animation: armWave 1.2s ease-in-out infinite;
+}

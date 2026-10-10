@@ -1,0 +1,118 @@
+.home-page {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+/* Hero Section */
+.home-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 24px;
+  background: rgba(13, 45, 32, 0.7);
+  border: 3px solid var(--color-leaf);
+  border-radius: 12px;
+  padding: 36px 24px;
+  box-shadow: var(--pixel-box-shadow-hover);
+}
+
+.home-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-emerald);
+  color: var(--color-lime);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 1rem;
+  border: 2px solid var(--color-forest-dark);
+}
+
+.home-hero__title {
+  font-size: 3rem;
+  line-height: 1.1;
+  color: var(--text-primary);
+}
+
+.text-lime {
+  color: var(--color-lime);
+}
+
+.home-hero__subtitle {
+  font-size: 1.15rem;
+  max-width: 580px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.home-hero__mascot-wrapper {
+  margin: 12px 0;
+}
+
+.home-hero__actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Features Grid */
+.home-features {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.home-features__heading {
+  font-size: 2.2rem;
+  color: var(--color-warm-sunlight);
+  text-align: center;
+}
+
+.home-features__subheading {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.home-features__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+.feature-card__desc {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.feature-card__footer {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.feature-card__link {
+  color: var(--color-lime);
+  font-size: 1.1rem;
+  transition: color 0.15s ease;
+}
+
+.pixel-card:hover .feature-card__link {
+  color: var(--color-warm-sunlight);
+}
+
+@media (max-width: 640px) {
+  .home-hero__title {
+    font-size: 2.2rem;
+  }
+  .home-hero {
+    padding: 24px 16px;
+  }
+}
