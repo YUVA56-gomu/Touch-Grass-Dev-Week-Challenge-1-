@@ -1,6 +1,8 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
-import { HomePage } from '../pages/HomePage';
+import { LandingLayout } from '../components/layout/LandingLayout';
+import { LandingPage } from '../pages/LandingPage';
+import { FriendPage } from '../pages/FriendPage';
 import { TrackerPage } from '../pages/TrackerPage';
 import { RunningPage } from '../pages/RunningPage';
 import { CalendarPage } from '../pages/CalendarPage';
@@ -8,11 +10,20 @@ import { CalendarPage } from '../pages/CalendarPage';
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <AppLayout />,
+    element: <LandingLayout />,
     children: [
       {
         index: true,
-        element: <HomePage />,
+        element: <LandingPage />,
+      },
+    ],
+  },
+  {
+    element: <AppLayout />,
+    children: [
+      {
+        path: 'friend',
+        element: <FriendPage />,
       },
       {
         path: 'tracker',
@@ -28,7 +39,7 @@ export const router = createBrowserRouter([
       },
       {
         path: '*',
-        element: <HomePage />,
+        element: <Navigate to="/" replace />,
       },
     ],
   },

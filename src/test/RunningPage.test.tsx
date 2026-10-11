@@ -77,6 +77,8 @@ describe('Milestone 5 — RunningPage Component Integration Tests', () => {
 
     expect(screen.getAllByText(/Running Companion/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Set Your Outdoor Goal/i)).toBeDefined();
+    expect(screen.getByText(/Live GPS Trail Map/i)).toBeDefined();
+    expect(screen.getByTestId('live-run-map')).toBeDefined();
   });
 
   it('starts an active outdoor session, pauses/resumes, and finishes saving to history', async () => {
@@ -116,10 +118,60 @@ describe('Milestone 5 — RunningPage Component Integration Tests', () => {
     const finishBtn = screen.getByRole('button', { name: /Finish & Save/i });
     fireEvent.click(finishBtn);
 
-    // Verify run record saved to history
+    // Verify post-run summary is displayed
     await waitFor(() => {
-      expect(screen.getByText(/Recent Running & Stroll History/i)).toBeDefined();
+      expect(screen.getByText(/Run Completed!/i)).toBeDefined();
     });
+    expect(screen.getByText(/Sprout says:/i)).toBeDefined();
+
+    // Verify run record saved to history
+    expect(screen.getByText(/Recent Running & Stroll History/i)).toBeDefined();
+
+    // Tapping Start Another Run returns to the companion goal selector
+    const startAnotherBtn = screen.getByRole('button', { name: /Start Another Run/i });
+    fireEvent.click(startAnotherBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Set Your Outdoor Goal/i)).toBeDefined();
+    });
+  });
+
+  it('prevents duplicate saves when finish action is clicked multiple times', async () => {
+    const createRunSpy = vi.spyOn(mockEngine, 'createRun');
+
+    render(
+      <RunningPage
+        storageEngine={mockEngine}
+        gpsProvider={mockGps}
+        routeProvider={mockRouteProvider}
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Set Your Outdoor Goal/i)).toBeDefined();
+    });
+
+    // Start session
+    const startBtn = screen.getByRole('button', { name: /Start Outdoor Session/i });
+    fireEvent.click(startBtn);
+
+    expect(screen.getByText(/Active Outdoor Session/i)).toBeDefined();
+
+    const finishBtn = screen.getByRole('button', { name: /Finish & Save/i });
+    // Simulate rapid repeated clicks
+    fireEvent.click(finishBtn);
+    fireEvent.click(finishBtn);
+    fireEvent.click(finishBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Run Completed!/i)).toBeDefined();
+    });
+
+    // Verify createRun was called exactly once
+    expect(createRunSpy).toHaveBeenCalledTimes(1);
+
+    const savedRuns = await mockEngine.getRuns();
+    expect(savedRuns.length).toBe(1);
   });
 
   it('allows discarding an unfinished session without saving', async () => {

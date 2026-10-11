@@ -1,0 +1,58 @@
+.friend-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 16px 8px 48px 8px;
+}
+
+/* Sprout Chat Page Header */
+.friend-page-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  background: rgba(13, 45, 32, 0.7);
+  border: 3px solid var(--color-leaf);
+  border-radius: 12px;
+  padding: 20px 16px;
+  box-shadow: var(--pixel-box-shadow-hover);
+}
+
+.friend-page-header__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-emerald);
+  color: var(--color-lime);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  border: 2px solid var(--color-forest-dark);
+  letter-spacing: 0.5px;
+}
+
+.friend-page-header__title {
+  font-size: 2.4rem;
+  line-height: 1.15;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.friend-page-header__subtitle {
+  font-size: 1.05rem;
+  max-width: 580px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0 auto;
+}
+
+.text-lime {
+  color: var(--color-lime);
+}
+
+.friend-chat-section {
+  width: 100%;
+}

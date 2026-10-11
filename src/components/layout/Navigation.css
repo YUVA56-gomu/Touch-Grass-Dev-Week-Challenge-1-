@@ -104,12 +104,60 @@
   color: var(--color-forest-dark);
 }
 
+/* Meet Sprout Prominent Header CTA */
+.nav-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-lime);
+  color: var(--color-forest-dark);
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 2px solid var(--color-forest-dark);
+  box-shadow: 2px 2px 0 var(--color-forest-dark);
+  text-decoration: none;
+  font-size: 1.15rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  transition: all 0.15s ease;
+  margin-left: 6px;
+}
+
+.nav-cta-btn:hover {
+  background: #d8fb85;
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 0 var(--color-forest-dark);
+}
+
+.nav-cta-btn:active {
+  transform: translateY(1px);
+  box-shadow: 1px 1px 0 var(--color-forest-dark);
+}
+
+.nav-cta-btn--active {
+  background: var(--color-warm-sunlight);
+  box-shadow: inset 0 0 0 2px var(--color-forest-dark);
+}
+
+.nav-cta-btn:focus-visible {
+  outline: 3px solid var(--color-warm-sunlight);
+  outline-offset: 2px;
+}
+
 /* Mobile Bottom Nav Bar */
 .mobile-bottom-nav {
   display: none;
 }
 
+.landing-header__mobile-cta {
+  display: none;
+}
+
 @media (max-width: 768px) {
+  .landing-header__mobile-cta {
+    display: block;
+  }
+
   .desktop-nav {
     display: none;
   }

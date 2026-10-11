@@ -1,4 +1,4 @@
-export type NavSectionId = 'home' | 'tracker' | 'running' | 'calendar';
+export type NavSectionId = 'home' | 'friend' | 'tracker' | 'running' | 'calendar' | 'features' | 'about';
 
 export interface NavItem {
   id: NavSectionId;

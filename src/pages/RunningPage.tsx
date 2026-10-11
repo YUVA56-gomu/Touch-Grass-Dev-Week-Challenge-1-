@@ -20,6 +20,8 @@ import { RunGoalSelector } from '../features/running/components/RunGoalSelector'
 import { ActiveRunPanel } from '../features/running/components/ActiveRunPanel';
 import { RouteDiscoveryPanel } from '../features/running/components/RouteDiscoveryPanel';
 import { RunHistoryList } from '../features/running/components/RunHistoryList';
+import { LiveRunMap } from '../features/running/components/LiveRunMap';
+import { PostRunSummary } from '../features/running/components/PostRunSummary';
 import { PixelButton } from '../components/pixel-ui/PixelButton';
 
 import { Footprints, AlertCircle, RefreshCw } from 'lucide-react';
@@ -49,13 +51,17 @@ export const RunningPage: React.FC<RunningPageProps> = ({
   const [pathCoordinates, setPathCoordinates] = useState<
     Array<{ lat: number; lng: number; timestamp: number }>
   >([]);
+  const [currentPosition, setCurrentPosition] = useState<{ lat: number; lng: number } | null>(null);
 
   // GPS Status
   const [gpsStatus, setGpsStatus] = useState<
     'searching' | 'tracking' | 'warning' | 'paused' | 'offline'
   >('offline');
   const [gpsError, setGpsError] = useState<string | null>(null);
+  const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
+  const [completedRun, setCompletedRun] = useState<RunRecord | null>(null);
 
+  const isSavingRef = useRef<boolean>(false);
   const lastSampleRef = useRef<GpsPositionSample | undefined>(undefined);
   const sessionStartTimeRef = useRef<number>(Date.now());
 
@@ -101,18 +107,18 @@ export const RunningPage: React.FC<RunningPageProps> = ({
 
   // Start Session Action
   const handleStartSession = (distanceKm?: number, timedOnly = false) => {
+    setCompletedRun(null);
     setTargetDistanceKm(distanceKm);
     setIsTimedOnly(timedOnly);
     setElapsedSeconds(0);
     setMeasuredDistanceKm(0);
-    setPathCoordinates([]);
     setGpsError(null);
-    lastSampleRef.current = undefined;
     sessionStartTimeRef.current = Date.now();
 
     setSessionState('running');
 
     if (timedOnly || !gpsProvider.isSupported()) {
+      setPathCoordinates([]);
       setGpsStatus('offline');
       if (!timedOnly && !gpsProvider.isSupported()) {
         setGpsError('Browser Geolocation is not supported. Running in Timed Session mode.');
@@ -120,11 +126,37 @@ export const RunningPage: React.FC<RunningPageProps> = ({
       return;
     }
 
-    setGpsStatus('searching');
+    // If we already know the runner's location from standby locate, seed the initial start coordinate
+    if (currentPosition) {
+      const initialPoint = {
+        lat: currentPosition.lat,
+        lng: currentPosition.lng,
+        timestamp: Date.now(),
+      };
+      setPathCoordinates([initialPoint]);
+      lastSampleRef.current = {
+        lat: currentPosition.lat,
+        lng: currentPosition.lng,
+        accuracy: gpsAccuracy ?? 15,
+        timestamp: Date.now(),
+      };
+      setGpsStatus(gpsAccuracy && gpsAccuracy > 25 ? 'warning' : 'tracking');
+    } else {
+      setPathCoordinates([]);
+      lastSampleRef.current = undefined;
+      setGpsStatus('searching');
+    }
+
     gpsProvider.startTracking(
       (sample: GpsPositionSample) => {
+        // Always display actual live coordinate and accuracy
+        setCurrentPosition({ lat: sample.lat, lng: sample.lng });
+        setGpsAccuracy(sample.accuracy);
+        setGpsStatus(sample.accuracy > 25 ? 'warning' : 'tracking');
+
         const prev = lastSampleRef.current;
-        if (filterGpsSample(sample, prev)) {
+        // Accept up to 150m accuracy to accommodate real browser Wi-Fi/desktop and outdoor GPS
+        if (filterGpsSample(sample, prev, 150)) {
           if (prev) {
             const addedKm = calculateHaversineDistance(prev.lat, prev.lng, sample.lat, sample.lng);
             setMeasuredDistanceKm((oldDist) => oldDist + addedKm);
@@ -134,7 +166,6 @@ export const RunningPage: React.FC<RunningPageProps> = ({
             ...oldPath,
             { lat: sample.lat, lng: sample.lng, timestamp: sample.timestamp },
           ]);
-          setGpsStatus(sample.accuracy > 25 ? 'warning' : 'tracking');
         }
       },
       (err: GpsError) => {
@@ -162,6 +193,10 @@ export const RunningPage: React.FC<RunningPageProps> = ({
 
   // Finish & Save Session
   const handleFinishSave = async () => {
+    // Prevent duplicate saves when finish action is triggered multiple times
+    if (isSavingRef.current || sessionState === 'idle') return;
+    isSavingRef.current = true;
+
     gpsProvider.stopTracking();
 
     const now = Date.now();
@@ -183,13 +218,20 @@ export const RunningPage: React.FC<RunningPageProps> = ({
     };
 
     try {
-      await storageEngine.createRun(newRun);
+      const savedRecord = await storageEngine.createRun(newRun);
       setSessionState('idle');
+      setCurrentPosition(null);
+      setGpsAccuracy(null);
+      setCompletedRun(savedRecord);
       await loadRuns();
     } catch (err: any) {
       console.error('Failed to save run record:', err);
       setStorageError(err.message || 'Failed to save run session record.');
       setSessionState('idle');
+      setCurrentPosition(null);
+      setGpsAccuracy(null);
+    } finally {
+      isSavingRef.current = false;
     }
   };
 
@@ -200,7 +242,32 @@ export const RunningPage: React.FC<RunningPageProps> = ({
     setElapsedSeconds(0);
     setMeasuredDistanceKm(0);
     setPathCoordinates([]);
+    setCurrentPosition(null);
+    setGpsAccuracy(null);
     lastSampleRef.current = undefined;
+  };
+
+  // Standby Location Request (when idle)
+  const handleLocateMe = () => {
+    if (gpsProvider.isSupported()) {
+      setGpsStatus('searching');
+      setGpsError(null);
+      gpsProvider.startTracking(
+        (sample: GpsPositionSample) => {
+          setCurrentPosition({ lat: sample.lat, lng: sample.lng });
+          setGpsAccuracy(sample.accuracy);
+          setGpsStatus(sample.accuracy > 25 ? 'warning' : 'tracking');
+          gpsProvider.stopTracking();
+        },
+        (err: GpsError) => {
+          setGpsError(err.message);
+          setGpsStatus('offline');
+          gpsProvider.stopTracking();
+        }
+      );
+    } else {
+      setGpsError('Browser Geolocation is not supported.');
+    }
   };
 
   // Delete Record
@@ -242,25 +309,47 @@ export const RunningPage: React.FC<RunningPageProps> = ({
         </div>
       )}
 
-      {/* Active Session HUD or Goal Selector */}
-      {sessionState !== 'idle' ? (
-        <ActiveRunPanel
-          elapsedSeconds={elapsedSeconds}
-          distanceKm={measuredDistanceKm}
-          isPaused={sessionState === 'paused'}
-          gpsStatus={gpsStatus}
-          targetDistanceKm={targetDistanceKm}
-          isTimedOnly={isTimedOnly}
-          onPauseToggle={handlePauseToggle}
-          onFinishSave={handleFinishSave}
-          onDiscard={handleDiscard}
+      {/* Dedicated Post-Run Summary when a session finishes */}
+      {completedRun ? (
+        <PostRunSummary
+          run={completedRun}
+          onClose={() => setCompletedRun(null)}
         />
       ) : (
-        <RunGoalSelector onSelectGoal={handleStartSession} />
-      )}
+        <>
+          {/* Active Session HUD or Goal Selector */}
+          {sessionState !== 'idle' ? (
+            <ActiveRunPanel
+              elapsedSeconds={elapsedSeconds}
+              distanceKm={measuredDistanceKm}
+              isPaused={sessionState === 'paused'}
+              gpsStatus={gpsStatus}
+              targetDistanceKm={targetDistanceKm}
+              isTimedOnly={isTimedOnly}
+              onPauseToggle={handlePauseToggle}
+              onFinishSave={handleFinishSave}
+              onDiscard={handleDiscard}
+            />
+          ) : (
+            <RunGoalSelector onSelectGoal={handleStartSession} />
+          )}
 
-      {/* Route Discovery Section */}
-      <RouteDiscoveryPanel routeProvider={routeProvider} gpsProvider={gpsProvider} />
+          {/* Live GPS Trail Map */}
+          <LiveRunMap
+            currentPosition={currentPosition}
+            pathCoordinates={pathCoordinates}
+            gpsStatus={gpsStatus}
+            gpsError={gpsError}
+            accuracyMeters={gpsAccuracy}
+            isSessionActive={sessionState !== 'idle'}
+            onStartRun={() => handleStartSession(targetDistanceKm, isTimedOnly)}
+            onLocateMe={handleLocateMe}
+          />
+
+          {/* Route Discovery Section */}
+          <RouteDiscoveryPanel routeProvider={routeProvider} gpsProvider={gpsProvider} />
+        </>
+      )}
 
       {/* Recent Run History */}
       {isLoading ? (
