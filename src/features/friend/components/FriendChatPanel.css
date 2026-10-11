@@ -273,3 +273,69 @@
 .animate-spin {
   animation: spin 1s linear infinite;
 }
+
+/* Voice Controls in Header */
+.chat-header-voice-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.voice-select-dropdown {
+  background: var(--color-forest-dark);
+  border: 2px solid var(--color-leaf);
+  color: var(--color-lime);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.auto-speak-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.95rem;
+  color: var(--color-warm-sunlight);
+  cursor: pointer;
+  user-select: none;
+}
+
+.auto-speak-toggle input[type="checkbox"] {
+  accent-color: var(--color-lime);
+  cursor: pointer;
+}
+
+.msg-speak-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  margin-left: 6px;
+  padding: 2px;
+  vertical-align: middle;
+  transition: color 0.15s ease;
+}
+
+.msg-speak-btn:hover {
+  color: var(--color-lime);
+}
+
+.msg-speak-btn--active {
+  color: var(--color-lime);
+  animation: pulseGlow 1.5s ease-in-out infinite;
+}
+
+.cancel-rec-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-forest-dark);
+  cursor: pointer;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.cancel-rec-btn:hover {
+  color: var(--color-berry-red);
+}
+

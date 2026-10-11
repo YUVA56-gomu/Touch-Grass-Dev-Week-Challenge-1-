@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   calculateHaversineDistance,
   filterGpsSample,
@@ -146,13 +146,49 @@ describe('Milestone 5 — GPS Tracking, Distance & Storage Tests', () => {
   });
 
   describe('Route Discovery Provider', () => {
-    it('returns grounded OpenStreetMap route candidates when coordinates are present', async () => {
+    it('returns grounded pedestrian route candidates when OSRM fetch succeeds', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          code: 'Ok',
+          routes: [
+            {
+              distance: 3200,
+              geometry: {
+                coordinates: [
+                  [-122.4194, 37.7749],
+                  [-122.42, 37.776],
+                ],
+              },
+            },
+          ],
+        }),
+      });
+      vi.stubGlobal('fetch', mockFetch);
+
       const provider = new DefaultRouteProvider();
       const candidates = await provider.getRouteCandidates(37.7749, -122.4194, 3.0);
 
       expect(candidates.length).toBeGreaterThan(0);
-      expect(candidates[0].attribution).toContain('OpenStreetMap');
+      expect(candidates[0].attribution).toContain('OSRM');
       expect(candidates[0].isFallback).toBe(false);
+      expect(candidates[0].waypoints.length).toBe(2);
+
+      vi.unstubAllGlobals();
+    });
+
+    it('returns familiar-ground fallbacks when OSRM fetch fails or coordinates are missing', async () => {
+      const mockFetch = vi.fn().mockRejectedValue(new Error('Network error'));
+      vi.stubGlobal('fetch', mockFetch);
+
+      const provider = new DefaultRouteProvider();
+      const candidates = await provider.getRouteCandidates(37.7749, -122.4194, 3.0);
+
+      expect(candidates.length).toBeGreaterThan(0);
+      expect(candidates[0].isFallback).toBe(true);
+      expect(candidates[0].name).toContain('Familiar-Ground');
+
+      vi.unstubAllGlobals();
     });
 
     it('returns familiar-ground fallbacks for rural/offline requests without coordinates', async () => {

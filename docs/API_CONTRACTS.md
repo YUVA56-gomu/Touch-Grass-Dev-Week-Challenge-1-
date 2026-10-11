@@ -6,24 +6,45 @@
 
 ## 1. Overview
 
-TOUCH GRASS operates as a local-first frontend application. Backend services (FastAPI API gateway) and external provider integrations follow strict JSON payload contracts.
+TOUCH GRASS operates as a local-first frontend application paired with a FastAPI API gateway backend (`backend/`). The API follows strict JSON request/response schema contracts.
 
 ---
 
-## 2. AI Companion Endpoint Contract
+## 2. Health Endpoint Contract
+
+### GET `/api/v1/health`
+Checks backend status and configured LLM provider state.
+
+**Response Payload**:
+```json
+{
+  "status": "ok",
+  "service": "TOUCH GRASS AI Gateway",
+  "version": "1.0.0",
+  "llm_provider": "Google Gemini LLM",
+  "llm_configured": true
+}
+```
+
+---
+
+## 3. AI Companion Endpoint Contract
 
 ### POST `/api/v1/ai/chat`
-Sends a prompt to the AI Friend and receives a structured response with speech narration text and spirit mood.
+Sends a prompt to the AI Friend and receives a structured response with speech narration text, spirit mood expression, and suggested prompts.
 
 **Request Payload**:
 ```json
 {
-  "session_id": "usr-local-84920",
+  "session_id": "local_session",
   "message": "I'm feeling stressed after a long day indoors.",
+  "history": [
+    { "role": "user", "text": "Hello Sprout!" },
+    { "role": "assistant", "text": "Hello friend! Welcome to the forest." }
+  ],
   "user_context": {
-    "local_time": "17:30",
-    "weather": "sunny",
-    "recent_visits_count": 3
+    "friend_name": "Sprout",
+    "time_of_day": "afternoon"
   }
 }
 ```
@@ -32,15 +53,20 @@ Sends a prompt to the AI Friend and receives a structured response with speech n
 ```json
 {
   "reply_text": "I hear you, friend! The afternoon sun is just starting to soften. How about taking a quick 5-minute breather near a window or stepping into the yard?",
-  "expression": "happy",
-  "suggested_action": "explore_nature",
-  "audio_narration_url": null
+  "expression": "resting",
+  "suggested_prompts": [
+    "Tell me a forest story",
+    "How can I relax right now?",
+    "Why is touching grass good for me?"
+  ],
+  "audio_narration_url": null,
+  "is_mock": false
 }
 ```
 
 ---
 
-## 3. Nature Calendar Provider Contract
+## 4. Nature Calendar Provider Contract
 
 ### GET `/api/v1/calendar/events`
 Fetches upcoming astronomical, seasonal, and outdoor phenomena based on lat/lng coordinates and time window.
@@ -50,27 +76,9 @@ Fetches upcoming astronomical, seasonal, and outdoor phenomena based on lat/lng 
 - `lng` (float): Longitude (e.g. `-122.4194`)
 - `days` (int): Number of forecast days (e.g. `7`)
 
-**Response Payload**:
-```json
-{
-  "location": { "lat": 37.7749, "lng": -122.4194 },
-  "events": [
-    {
-      "id": "evt-lunar-full-2026-10",
-      "title": "Hunter's Full Moon",
-      "category": "astronomy",
-      "date": "2026-10-15T20:00:00Z",
-      "status": "calculated",
-      "description": "Bright autumn full moon visible across clear night skies.",
-      "visibility_quality": "excellent"
-    }
-  ]
-}
-```
-
 ---
 
-## 4. Map & Route Provider Contract
+## 5. Map & Route Provider Contract
 
 ### GET `/api/v1/running/routes`
 Fetches nature trail route candidates for outdoor running distance selection.
@@ -79,23 +87,3 @@ Fetches nature trail route candidates for outdoor running distance selection.
 - `lat` (float)
 - `lng` (float)
 - `distance_km` (float, e.g. `3.0`)
-
-**Response Payload**:
-```json
-{
-  "requested_distance_km": 3.0,
-  "routes": [
-    {
-      "route_id": "trail-forest-loop-1",
-      "name": "Pine Needles Forest Loop",
-      "distance_km": 3.2,
-      "surface_type": "dirt_path",
-      "nature_rating": "high",
-      "waypoints": [
-        { "lat": 37.7749, "lng": -122.4194 },
-        { "lat": 37.7780, "lng": -122.4220 }
-      ]
-    }
-  ]
-}
-```

@@ -37,6 +37,50 @@ describe('Milestone 3 — AI Friend Engine & Guided Nature Experience Tests', ()
     });
   });
 
+  describe('FastAPILLMAdapter Suite', () => {
+    it('sends POST request to backend and parses successful response', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          reply_text: 'Hello from FastAPI backend!',
+          expression: 'happy',
+          suggested_prompts: ['Option A'],
+          is_mock: false,
+        }),
+      });
+      vi.stubGlobal('fetch', mockFetch);
+
+      const adapter = new (await import('../services/ai/FastAPILLMAdapter')).FastAPILLMAdapter('http://127.0.0.1:8000/api/v1');
+      const res = await adapter.sendMessage('Hello backend');
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://127.0.0.1:8000/api/v1/ai/chat',
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        })
+      );
+      expect(res.replyText).toBe('Hello from FastAPI backend!');
+      expect(res.isMock).toBe(false);
+
+      vi.unstubAllGlobals();
+    });
+
+    it('falls back to MockAIProvider when backend fetch fails', async () => {
+      const mockFetch = vi.fn().mockRejectedValue(new Error('Network error'));
+      vi.stubGlobal('fetch', mockFetch);
+
+      const adapter = new (await import('../services/ai/FastAPILLMAdapter')).FastAPILLMAdapter('http://127.0.0.1:8000/api/v1');
+      const res = await adapter.sendMessage('Hello offline');
+
+      expect(res.replyText).toBeDefined();
+      expect(res.isMock).toBe(true);
+      expect(res.providerName).toContain('Offline Fallback');
+
+      vi.unstubAllGlobals();
+    });
+  });
+
   describe('VoiceService Suite', () => {
     it('gracefully reports unsupported status when Speech API is missing', () => {
       const voiceService = new VoiceService();

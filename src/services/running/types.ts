@@ -35,6 +35,7 @@ export interface RouteCandidate {
   waypoints: Array<{ lat: number; lng: number }>;
   attribution?: string;
   isFallback: boolean;
+  providerName?: string;
   description?: string;
 }
 

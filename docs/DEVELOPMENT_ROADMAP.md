@@ -7,34 +7,27 @@
 ## 🚩 Milestone Schedule Overview
 
 ```text
-[Milestone 1] ──► [Milestone 2] ──► [Milestone 3] ──► [Milestone 4] ──► [Milestone 5] ──► [Milestone 6] ──► [Milestone 7]
-Foundation         Architecture      AI Friend         Tracker &         Running           Calendar          Release
-& 16-bit UI        Lock-in           Engine            IndexedDB         Companion         Engine            Package
-(COMPLETE)         (COMPLETE)        (COMPLETE)        (COMPLETE)        (COMPLETE)        (COMPLETE)        (COMPLETE)
+[M1-M7] ─────────────────► [Milestone 8.1] ────────► [Milestone 8.2]
+Foundation, Features,     FastAPI Backend &          Real Pedestrian Routes,
+Quality & Release         Real LLM Integration       Backend Containerization
+(COMPLETE)                (COMPLETE)                 (COMPLETE)
 ```
 
 ---
 
 ## 📋 Milestone Status
 
-### Milestone 1: Project Foundation & Visual Identity (COMPLETE)
+### Milestones 1–7: Core Application & Release Package (COMPLETE)
 - **Status**: ✅ **COMPLETED** (October 10, 2026)
 
-### Milestone 2: Documentation & Architecture Lock-in (COMPLETE)
+### Milestone 8.1: FastAPI Backend Foundation & Real LLM Integration (COMPLETE)
 - **Status**: ✅ **COMPLETED** (October 10, 2026)
 
-### Milestone 3: AI Friend Engine & Ambient Nature Experience (COMPLETE)
+### Milestone 8.2: Real Route Discovery, Backend Containerization & Deployment Readiness (COMPLETE)
 - **Status**: ✅ **COMPLETED** (October 10, 2026)
-
-### Milestone 4: Touch Grass Tracker & IndexedDB Storage (COMPLETE)
-- **Status**: ✅ **COMPLETED** (October 10, 2026)
-
-### Milestone 5: Running Companion & GPS Tracker (COMPLETE)
-- **Status**: ✅ **COMPLETED** (October 10, 2026)
-
-### Milestone 6: Nature Calendar & Astronomy Engine (COMPLETE)
-- **Status**: ✅ **COMPLETED** (October 10, 2026)
-
-### Milestone 7: Integration, Quality Assurance & Hacktoberfest Release (COMPLETE)
-- **Status**: ✅ **COMPLETED** (October 10, 2026)
-- **Deliverables**: End-to-end integration audit, accessibility & privacy review, honest feature-status documentation, MIT LICENSE, `.env.example`, `.gitignore`, comprehensive README, 8 passed test files (58/58 tests passing), TypeScript strict compilation (0 errors), clean production bundle build (`dist/`).
+- **Deliverables**:
+  - `OsrmRouteProvider.ts`: Live pedestrian trail routing using Open Source Routing Machine (`/route/v1/foot`) with local familiar-ground fallbacks.
+  - `backend/Dockerfile`, `backend/.dockerignore`, `docker-compose.yml`: Containerization setup with non-root user (`appuser`), curl healthcheck, and multi-stage dependency installation.
+  - Gemini model update to `gemini-2.5-flash` in `backend/app/core/config.py`.
+  - Transparent health endpoint status notes (`llm_status_note`).
+  - Quality Gates: 12 passing backend pytest tests, 61 passing frontend vitest tests, TypeScript compilation (0 errors), clean Vite production build.

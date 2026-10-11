@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { GuidedSessionState, NatureStory, StorySegment } from '../types';
 import { AudioEngine, AudioScene } from '../../../services/audio/AudioEngine';
 import { VoiceService } from '../../../services/voice/VoiceService';
+import { ElevenLabsVoiceService, defaultElevenLabsVoiceService } from '../../../services/voice/ElevenLabsVoiceService';
 import { PixelButton } from '../../../components/pixel-ui/PixelButton';
 import { PixelCard } from '../../../components/pixel-ui/PixelCard';
 import { Play, Pause, Square, Volume2, VolumeX, Trees, Wind, CloudRain, CheckCircle, Sparkles, X } from 'lucide-react';
@@ -14,6 +15,7 @@ interface GuidedNatureSessionProps {
   onSessionComplete?: () => void;
   audioEngine?: AudioEngine;
   voiceService?: VoiceService;
+  elevenLabsVoiceService?: ElevenLabsVoiceService;
 }
 
 const NATURE_STORIES: NatureStory[] = [
@@ -104,6 +106,7 @@ export const GuidedNatureSession: React.FC<GuidedNatureSessionProps> = ({
   onSessionComplete,
   audioEngine: propAudioEngine,
   voiceService: propVoiceService,
+  elevenLabsVoiceService: propElevenLabsService,
 }) => {
   const [sessionState, setSessionState] = useState<GuidedSessionState>('idle');
   const [selectedScene, setSelectedScene] = useState<AudioScene>('forest');
@@ -116,6 +119,7 @@ export const GuidedNatureSession: React.FC<GuidedNatureSessionProps> = ({
 
   const audioEngine = propAudioEngine || localAudioEngineRef.current;
   const voiceService = propVoiceService || localVoiceServiceRef.current;
+  const elevenLabsService = propElevenLabsService || defaultElevenLabsVoiceService;
 
   // Initialize services if props not passed
   useEffect(() => {
@@ -134,8 +138,9 @@ export const GuidedNatureSession: React.FC<GuidedNatureSessionProps> = ({
       if (localVoiceServiceRef.current) {
         localVoiceServiceRef.current.stopSpeaking();
       }
+      elevenLabsService.stopSpeaking();
     };
-  }, [propAudioEngine, propVoiceService]);
+  }, [propAudioEngine, propVoiceService, elevenLabsService]);
 
   // Current Story Selection
   const currentStory = NATURE_STORIES.find((s) => s.scene === selectedScene) || NATURE_STORIES[0];
@@ -156,9 +161,19 @@ export const GuidedNatureSession: React.FC<GuidedNatureSessionProps> = ({
   };
 
   const speakSegment = (seg: StorySegment) => {
-    if (voiceService && voiceService.isSynthesisSupported()) {
-      voiceService.speak(`${friendName} says: ${seg.narrationText}`);
-    }
+    const textToSpeak = `${friendName} says: ${seg.narrationText}`;
+    elevenLabsService.speakText(
+      textToSpeak,
+      'guardian',
+      undefined,
+      undefined,
+      () => {
+        // Fallback to browser voice service
+        if (voiceService && voiceService.isSynthesisSupported()) {
+          voiceService.speak(textToSpeak);
+        }
+      }
+    );
   };
 
   const handlePause = () => {
@@ -169,6 +184,7 @@ export const GuidedNatureSession: React.FC<GuidedNatureSessionProps> = ({
     if (voiceService) {
       voiceService.stopSpeaking();
     }
+    elevenLabsService.stopSpeaking();
   };
 
   const handleResume = () => {
@@ -209,6 +225,7 @@ export const GuidedNatureSession: React.FC<GuidedNatureSessionProps> = ({
     if (voiceService) {
       voiceService.stopSpeaking();
     }
+    elevenLabsService.stopSpeaking();
     if (onSessionComplete) {
       onSessionComplete();
     }
@@ -222,6 +239,7 @@ export const GuidedNatureSession: React.FC<GuidedNatureSessionProps> = ({
     if (voiceService) {
       voiceService.stopSpeaking();
     }
+    elevenLabsService.stopSpeaking();
     onClose();
   };
 

@@ -6,26 +6,29 @@
 
 ## 1. Overview
 
-TOUCH GRASS uses the **Adapter Pattern** to isolate all external service dependencies behind clean TypeScript interfaces (`src/services/`). This enables changing underlying vendors without modifying UI code.
+TOUCH GRASS uses the **Adapter Pattern** to isolate all external service dependencies behind clean TypeScript interfaces (`src/services/`) and Python backend services (`backend/app/services/`). This enables changing underlying vendors without modifying UI code.
 
 ---
 
 ## 2. External Integration Interfaces
 
-### 2.1 AI Engine Adapters (`src/services/ai/`)
-- **Primary Interface**: `AIProvider`
+### 2.1 AI Engine Adapters (`src/services/ai/` & `backend/app/services/ai/`)
+- **Primary Interface**: `AIProvider` (Frontend) / `BaseLLMProvider` (Backend)
 - **Supported Adapters**:
-  - `WebSpeechAIAdapter`: Native browser speech synthesis & recognition (offline capability).
-  - `FastAPILLMAdapter`: Backend proxy connection to external LLMs.
+  - `FastAPILLMAdapter`: Frontend HTTP client for `/api/v1/ai/chat` with automatic offline fallback.
+  - `GeminiProvider`: Real LLM backend integration calling Google Gemini API (`gemini-2.5-flash`) via `httpx.AsyncClient`.
+  - `MockAIProvider` / `MockBackendProvider`: Local fallback nature spirit providers.
 
-### 2.2 Map & Location Adapters (`src/services/location/`)
-- **Primary Interface**: `LocationProvider`
+### 2.2 Map & Pedestrian Routing Adapters (`src/services/running/`)
+- **Primary Interface**: `IRouteProvider`
 - **Supported Adapters**:
-  - `BrowserGeolocationAdapter`: Standard HTML5 Geolocation API.
-  - `OpenStreetMapAdapter`: Leaflet / OSM tile visualizer with offline rural fallback.
+  - `OsrmRouteProvider`: Live pedestrian trail routing using Open Source Routing Machine (`https://router.project-osrm.org/route/v1/foot`).
+  - `DefaultRouteProvider`: Main route discovery provider wrapping OSRM with local familiar-ground and timed-session fallbacks.
+  - **Attribution**: `Routing by OSRM · Map data © OpenStreetMap contributors`.
 
-### 2.3 Nature Event Data Adapters (`src/services/events/`)
-- **Primary Interface**: `EventProvider`
+### 2.3 Nature Event Data Adapters (`src/services/calendar/`)
+- **Primary Interface**: `ICalendarEventProvider`
 - **Supported Adapters**:
-  - `DeterministicAstronomyAdapter`: Pure JavaScript solar/lunar algorithms (sunrise, sunset, moon phases).
-  - `LocalEventsAPIAdapter`: Fetches regional nature conservation and park event feeds.
+  - `astronomyEngine.ts`: Pure JavaScript solar/lunar algorithms (sunrise, sunset, 8 synodic moon phases, solstices, equinoxes).
+  - `SeasonalNatureProvider.ts`: Verified UN environmental observances (UNEP, EarthDay.org, Arbor Day) and seasonal bloom phenology.
+  - `CompositeCalendarProvider.ts`: Combines astronomical and seasonal event providers with category filtering.

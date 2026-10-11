@@ -19,6 +19,8 @@ export interface AIResponse {
   expression: MascotExpression;
   suggestedPrompts?: string[];
   audioNarrationUrl?: string | null;
+  isMock?: boolean;
+  providerName?: string;
 }
 
 export interface StorySegment {

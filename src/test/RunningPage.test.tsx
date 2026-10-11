@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { RunningPage } from '../pages/RunningPage';
 import { StorageEngine } from '../services/storage/StorageEngine';
@@ -157,6 +157,25 @@ describe('Milestone 5 — RunningPage Component Integration Tests', () => {
   });
 
   it('discovers route candidates with OpenStreetMap attribution', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        code: 'Ok',
+        routes: [
+          {
+            distance: 3200,
+            geometry: {
+              coordinates: [
+                [-122.4194, 37.7749],
+                [-122.42, 37.776],
+              ],
+            },
+          },
+        ],
+      }),
+    });
+    vi.stubGlobal('fetch', mockFetch);
+
     render(
       <RunningPage
         storageEngine={mockEngine}
@@ -173,9 +192,10 @@ describe('Milestone 5 — RunningPage Component Integration Tests', () => {
     fireEvent.click(discoverBtn);
 
     await waitFor(() => {
-      expect(screen.getByText(/Greenwood Forest Nature Loop/i)).toBeDefined();
+      expect(screen.getByText(/OSRM Pedestrian Trail/i)).toBeDefined();
     });
 
     expect(screen.getAllByText(/OpenStreetMap/i).length).toBeGreaterThan(0);
+    vi.unstubAllGlobals();
   });
 });
