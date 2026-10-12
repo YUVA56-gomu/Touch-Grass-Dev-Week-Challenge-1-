@@ -8,14 +8,14 @@ import './MeetSproutEntrance.css';
 export interface MeetSproutEntranceProps {
   isOpen: boolean;
   onClose: () => void;
-  autoContinueDurationMs?: number; // default: 700ms
+  autoContinueDurationMs?: number; // default: 2800ms (paced, relaxed entrance)
   initialMessage?: string; // optional override for testing
 }
 
 export const MeetSproutEntrance: React.FC<MeetSproutEntranceProps> = ({
   isOpen,
   onClose,
-  autoContinueDurationMs = 700,
+  autoContinueDurationMs = 2800,
   initialMessage,
 }) => {
   const navigate = useNavigate();
@@ -56,7 +56,7 @@ export const MeetSproutEntrance: React.FC<MeetSproutEntranceProps> = ({
   useEffect(() => {
     if (!isOpen) return;
 
-    // Auto-continue timer once sweep transition completes (roughly 400-800ms, default 700ms)
+    // Auto-continue timer once sweep transition and greeting presentation complete (default: 2800ms)
     autoContinueTimerRef.current = window.setTimeout(() => {
       handleProceed();
     }, autoContinueDurationMs);

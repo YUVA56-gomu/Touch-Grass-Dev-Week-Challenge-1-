@@ -17,10 +17,10 @@ TOUCH GRASS is fully verified and submission-ready. The application features a s
    - Typewriter character-by-character reveals, intervals, and animated cursors are completely removed from [`MeetSproutEntrance.tsx`](file:///d:/TouchGrass/src/features/friend/components/MeetSproutEntrance.tsx).
    - Selected motivational message displays immediately as clear static text upon clicking Meet Sprout.
    - Curated non-repeating message algorithm ([`sproutEntranceMessages.ts`](file:///d:/TouchGrass/src/features/friend/data/sproutEntranceMessages.ts)) ensures no greeting is repeated consecutively.
-4. **White Magical Transition Overlay**:
-   - Clean diagonal white slash sweeping across the viewport (`0.65s cubic-bezier(0.16, 1, 0.3, 1)`).
-   - Soft radiant center glow bloom and subtle 16-bit pixel sparkles.
-   - Smooth auto-continue transition (`700ms`), with immediate navigation if "Let's go!" or "Skip" is clicked.
+4. **White Magical Transition Overlay & Paced Entrance**:
+   - Clean diagonal white slash sweeping across the viewport (`1.6s cubic-bezier(0.2, 0.8, 0.2, 1)`).
+   - Soft radiant center glow bloom (`1.6s ease-out`) and gentle 16-bit pixel sparkles (`1.5s`).
+   - Smooth card presentation (`0.6s`) and paced auto-continue transition (`2800ms`), with immediate navigation if "Let's go!" or "Skip" is clicked.
    - Respects `prefers-reduced-motion` and guards against duplicate navigation.
 
 ---
