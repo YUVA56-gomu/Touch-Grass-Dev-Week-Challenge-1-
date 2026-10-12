@@ -24,3 +24,9 @@ yarn-error.log*
 Thumbs.db
 .vscode/
 .idea/
+
+# Cache & Testing
+.vite/
+coverage/
+__pycache__/
+*.py[cod]
