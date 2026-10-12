@@ -47,6 +47,7 @@ class ChatResponse(BaseModel):
     )
     audio_narration_url: Optional[str] = Field(default=None, description="Optional narration audio URL")
     is_mock: bool = Field(default=False, description="Flag indicating if response came from local fallback")
+    provider_name: Optional[str] = Field(default=None, description="Active LLM provider name")
 
 
 class HealthResponse(BaseModel):

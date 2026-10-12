@@ -30,7 +30,7 @@ export class FastAPILLMAdapter implements AIProvider {
         if (this.activeAbortController) {
           this.activeAbortController.abort();
         }
-      }, 10000);
+      }, 30000);
 
       const response = await fetch(`${this.baseUrl}/ai/chat`, {
         method: 'POST',
@@ -59,20 +59,25 @@ export class FastAPILLMAdapter implements AIProvider {
       }
 
       const data = await response.json();
+      console.log(
+        '[AI-DIAGNOSTIC] Client received response | Provider:',
+        data.provider_name || (data.is_mock ? 'Mock' : 'FastAPI Gateway'),
+        '| IsMock:',
+        data.is_mock ?? false
+      );
+
       return {
         replyText: data.reply_text,
         expression: data.expression || 'happy',
         suggestedPrompts: data.suggested_prompts || [],
         audioNarrationUrl: data.audio_narration_url || null,
         isMock: data.is_mock ?? false,
-        providerName: data.is_mock ? 'Mock Nature Spirit (Fallback)' : 'FastAPI Gateway (Real LLM)',
+        providerName: data.provider_name || (data.is_mock ? 'Mock Nature Spirit (Fallback)' : 'FastAPI Gateway (Real LLM)'),
       };
     } catch (error: any) {
-      if (error?.name === 'AbortError') {
-        console.warn('FastAPI LLM request cancelled or timed out. Falling back to local MockAIProvider.');
-      } else {
-        console.warn('FastAPI backend gateway unavailable. Falling back to local MockAIProvider:', error);
-      }
+      const errorCause = error?.name === 'AbortError' ? 'Timeout (exceeded 30s) or cancelled' : error?.message || 'Network error';
+      console.warn(`[AI-DIAGNOSTIC] Client fallback to MockAIProvider triggered | Cause: ${errorCause}`);
+
       const fallbackRes = await this.fallbackProvider.sendMessage(prompt, history, context);
       return {
         ...fallbackRes,

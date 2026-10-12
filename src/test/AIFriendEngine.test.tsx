@@ -66,6 +66,29 @@ describe('Milestone 3 — AI Friend Engine & Guided Nature Experience Tests', ()
       vi.unstubAllGlobals();
     });
 
+    it('handles Ollama Local Gemma response and preserves providerName', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          reply_text: 'Deep breaths under the trees! Feel the earth beneath your feet.',
+          expression: 'happy',
+          suggested_prompts: ['Forest story', 'Breathe'],
+          is_mock: false,
+          provider_name: 'Ollama Local Gemma (gemma2:2b)',
+        }),
+      });
+      vi.stubGlobal('fetch', mockFetch);
+
+      const adapter = new (await import('../services/ai/FastAPILLMAdapter')).FastAPILLMAdapter('http://127.0.0.1:8000/api/v1');
+      const res = await adapter.sendMessage('Tell me about nature');
+
+      expect(res.replyText).toContain('Deep breaths');
+      expect(res.isMock).toBe(false);
+      expect(res.providerName).toBe('Ollama Local Gemma (gemma2:2b)');
+
+      vi.unstubAllGlobals();
+    });
+
     it('falls back to MockAIProvider when backend fetch fails', async () => {
       const mockFetch = vi.fn().mockRejectedValue(new Error('Network error'));
       vi.stubGlobal('fetch', mockFetch);

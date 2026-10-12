@@ -178,10 +178,18 @@ describe('TOUCH GRASS — Landing Page & Navigation Suite', () => {
     const landingHeader = container.querySelector('.landing-header');
     expect(landingHeader).toBeDefined();
 
-    // Click primary hero CTA to navigate to /friend
+    // Click primary hero CTA to trigger entrance animation modal
     const primaryHeroBtn = container.querySelector('#hero-primary-cta') as HTMLAnchorElement;
     expect(primaryHeroBtn).toBeDefined();
     fireEvent.click(primaryHeroBtn);
+
+    // Entrance animation dialog opens with "Let's go!" button
+    expect(screen.getByRole('dialog')).toBeDefined();
+    const letsGoBtn = screen.getByRole('button', { name: /Let's go!/i });
+    expect(letsGoBtn).toBeDefined();
+
+    // Click "Let's go!" to immediately navigate to /friend
+    fireEvent.click(letsGoBtn);
 
     // Route /friend is active: Sprout chat panel and mascot rendered, NO landing hero
     expect(screen.getByRole('heading', { level: 1, name: /Meet Sprout/i })).toBeDefined();

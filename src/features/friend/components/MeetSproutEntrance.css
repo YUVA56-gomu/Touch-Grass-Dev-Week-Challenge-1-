@@ -1,0 +1,484 @@
+/* ==========================================================================
+   Meet Sprout Entrance Animation Styles
+   16-Bit Indie Game Aesthetic & White Magical Transition
+   ========================================================================== */
+
+.sprout-entrance-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 36, 26, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: entranceFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes entranceFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* --------------------------------------------------------------------------
+   White Magical Transition Overlay
+   Clean diagonal white slash sweeping across viewport with soft glow & pixel particles
+   -------------------------------------------------------------------------- */
+.magical-slash-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10001;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.magical-slash-beam {
+  position: absolute;
+  width: 250vw;
+  height: 250vh;
+  top: -75vh;
+  left: -75vw;
+  background: linear-gradient(
+    135deg,
+    transparent 42%,
+    rgba(255, 255, 255, 0.15) 46%,
+    rgba(255, 255, 255, 0.92) 50%,
+    rgba(200, 243, 106, 0.3) 54%,
+    transparent 58%
+  );
+  filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.85));
+  animation: whiteSlashSweep 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes whiteSlashSweep {
+  0% {
+    transform: translate3d(-100%, -100%, 0) rotate(-28deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.95;
+  }
+  80% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate3d(100%, 100%, 0) rotate(-28deg);
+    opacity: 0;
+  }
+}
+
+.magical-slash-glow {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(200, 243, 106, 0.22) 40%,
+    transparent 70%
+  );
+  animation: softGlowBloom 0.65s ease-out forwards;
+}
+
+@keyframes softGlowBloom {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  35% {
+    transform: scale(1.05);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* Subtle pixel light particles during the sweep */
+.magical-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.magical-particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #ffffff;
+  box-shadow: 0 0 6px rgba(200, 243, 106, 0.9);
+  image-rendering: pixelated;
+  opacity: 0;
+  animation: particleFloatOut 0.6s ease-out forwards;
+}
+
+.magical-particle.particle--1 {
+  top: 42%;
+  left: 45%;
+  animation-delay: 0.08s;
+}
+
+.magical-particle.particle--2 {
+  top: 52%;
+  left: 54%;
+  background: var(--color-lime);
+  animation-delay: 0.12s;
+}
+
+.magical-particle.particle--3 {
+  top: 38%;
+  left: 56%;
+  animation-delay: 0.16s;
+}
+
+.magical-particle.particle--4 {
+  top: 58%;
+  left: 44%;
+  background: var(--color-warm-sunlight);
+  animation-delay: 0.18s;
+}
+
+@keyframes particleFloatOut {
+  0% {
+    transform: translate(0, 0) scale(0.5);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+    transform: translate(12px, -12px) scale(1.2);
+  }
+  100% {
+    transform: translate(28px, -28px) scale(0);
+    opacity: 0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Modal Card
+   -------------------------------------------------------------------------- */
+.sprout-entrance-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(23, 75, 53, 0.98), rgba(13, 45, 32, 0.98));
+  border: 4px solid var(--color-leaf);
+  border-radius: 14px;
+  padding: 32px 28px 24px 28px;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: 8px 8px 0px rgba(5, 20, 14, 0.9), inset 0 0 0 2px var(--color-lime);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 18px;
+  overflow: hidden;
+  animation: cardSoftFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes cardSoftFadeIn {
+  0% {
+    transform: scale(0.92) translateY(12px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Close button */
+.entrance-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(13, 45, 32, 0.8);
+  border: 2px solid var(--color-leaf);
+  color: var(--color-lime);
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 10;
+}
+
+.entrance-close-btn:hover {
+  background: var(--color-lime);
+  color: var(--color-forest-dark);
+  transform: scale(1.08);
+}
+
+.entrance-close-btn:focus-visible {
+  outline: 2px solid var(--color-warm-sunlight);
+}
+
+/* Floating Pixel Leaves in Background */
+.entrance-leaves-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.pixel-leaf {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--color-lime);
+  opacity: 0.6;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  filter: drop-shadow(0 0 4px var(--color-leaf));
+  animation: floatLeaf 6s ease-in-out infinite;
+}
+
+.pixel-leaf--1 {
+  top: 15%;
+  left: 12%;
+  animation-duration: 5.6s;
+  animation-delay: 0s;
+}
+
+.pixel-leaf--2 {
+  top: 25%;
+  right: 14%;
+  animation-duration: 6.4s;
+  animation-delay: 0.6s;
+  background: var(--color-warm-sunlight);
+}
+
+.pixel-leaf--3 {
+  bottom: 30%;
+  left: 10%;
+  animation-duration: 5.2s;
+  animation-delay: 1.2s;
+}
+
+.pixel-leaf--4 {
+  bottom: 25%;
+  right: 12%;
+  animation-duration: 6.8s;
+  animation-delay: 1.8s;
+}
+
+@keyframes floatLeaf {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-16px) rotate(25deg);
+  }
+}
+
+/* Mascot Stage & Soft Glow */
+.entrance-mascot-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.sprout-radiant-glow {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, rgba(200, 243, 106, 0.35) 0%, rgba(35, 131, 79, 0.15) 50%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: glowPulse 4.5s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    transform: scale(0.96);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+}
+
+.entrance-mascot-wrapper {
+  position: relative;
+  z-index: 1;
+  animation: sproutFloatBob 4.8s ease-in-out infinite;
+}
+
+@keyframes sproutFloatBob {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Motivational Greeting Bubble — Static Text */
+.entrance-speech-bubble {
+  position: relative;
+  background: var(--color-warm-sunlight);
+  color: var(--color-forest-dark);
+  border: 3px solid var(--color-forest-dark);
+  border-radius: 12px;
+  padding: 14px 20px;
+  box-shadow: 4px 4px 0 var(--color-forest-dark);
+  max-width: 440px;
+  width: 100%;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.entrance-speech-arrow {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid var(--color-forest-dark);
+}
+
+.entrance-speech-arrow::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid var(--color-warm-sunlight);
+}
+
+.entrance-message-text {
+  font-size: 1.25rem;
+  line-height: 1.35;
+  margin: 0;
+  letter-spacing: 0.5px;
+  color: var(--color-forest-dark);
+  font-weight: 500;
+}
+
+/* Actions */
+.entrance-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.entrance-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--color-lime);
+  color: var(--color-forest-dark);
+  border: 3px solid var(--color-forest-dark);
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-size: 1.35rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--color-forest-dark);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.entrance-btn-primary:hover {
+  background: #d8fb85;
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--color-forest-dark);
+}
+
+.entrance-btn-primary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--color-forest-dark);
+}
+
+.entrance-btn-primary:focus-visible {
+  outline: 3px solid var(--color-warm-sunlight);
+}
+
+.entrance-btn-skip {
+  background: rgba(35, 131, 79, 0.4);
+  color: var(--text-primary);
+  border: 2px solid var(--color-leaf);
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 1.15rem;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.entrance-btn-skip:hover {
+  background: rgba(35, 131, 79, 0.7);
+  color: var(--color-lime);
+  border-color: var(--color-lime);
+}
+
+.entrance-btn-skip:focus-visible {
+  outline: 2px solid var(--color-warm-sunlight);
+}
+
+/* Auto-continue Progress Bar */
+.entrance-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(13, 45, 32, 0.6);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.entrance-progress-fill {
+  height: 100%;
+  background: var(--color-lime);
+  width: 0%;
+  animation: progressFill 0.7s linear forwards;
+}
+
+@keyframes progressFill {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  .magical-slash-overlay {
+    display: none !important;
+  }
+  .sprout-entrance-card {
+    animation: none !important;
+  }
+  .pixel-leaf {
+    animation: none !important;
+  }
+  .sprout-radiant-glow {
+    animation: none !important;
+  }
+  .entrance-mascot-wrapper {
+    animation: none !important;
+  }
+  .entrance-progress-fill {
+    animation: none !important;
+    width: 100%;
+  }
+}

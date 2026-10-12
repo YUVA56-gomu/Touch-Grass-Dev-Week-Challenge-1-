@@ -17,3 +17,9 @@ class BaseLLMProvider(ABC):
     def is_configured(self) -> bool:
         """Returns True if valid provider credentials/keys are configured."""
         pass
+
+    async def check_readiness(self) -> tuple[bool, str]:
+        """Returns (is_ready, message) indicating live provider connectivity."""
+        if self.is_configured():
+            return True, f"{self.provider_name} is configured."
+        return False, f"{self.provider_name} is not configured."

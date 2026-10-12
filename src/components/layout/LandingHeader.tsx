@@ -1,9 +1,14 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Heart, Trees, HelpCircle, Sparkles } from 'lucide-react';
+import sproutHeroImg from '../../assets/sprout-hero.png';
 import './Navigation.css';
 
-export const LandingHeader: React.FC = () => {
+export interface LandingHeaderProps {
+  onMeetSprout?: () => void;
+}
+
+export const LandingHeader: React.FC<LandingHeaderProps> = ({ onMeetSprout }) => {
   const scrollToFeatures = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const elem = document.getElementById('features');
@@ -22,21 +27,26 @@ export const LandingHeader: React.FC = () => {
     }
   };
 
+  const handleMeetSproutClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (onMeetSprout) {
+      e.preventDefault();
+      onMeetSprout();
+    }
+  };
+
   return (
     <header className="app-header landing-header" aria-label="Landing Page Navigation">
       <div className="header-container">
-        {/* Brand Logo & Title */}
+        {/* Brand Logo & Title with scaled-down Sprout mascot image */}
         <NavLink to="/" className="brand-logo" aria-label="TOUCH GRASS Home">
           <div className="brand-logo__pixel-icon">
-            <svg width="24" height="24" viewBox="0 0 32 32" shapeRendering="crispEdges">
-              <path d="M14 2h4v2h-4zM12 4h2v2h-2zM18 4h2v2h-2zM10 6h12v20H10z" fill="#174B35" />
-              <path d="M14 6h4v4h-4zM12 10h8v12h-8z" fill="#C8F36A" />
-              <rect x="13" y="12" width="2" height="3" fill="#174B35" />
-              <rect x="17" y="12" width="2" height="3" fill="#174B35" />
-              <rect x="12" y="17" width="2" height="2" fill="#F8A5C2" />
-              <rect x="18" y="17" width="2" height="2" fill="#F8A5C2" />
-              <path d="M14 18h4v2h-4z" fill="#174B35" />
-            </svg>
+            <img
+              src={sproutHeroImg}
+              alt="TOUCH GRASS Sprout mascot"
+              className="brand-logo__image"
+              width={40}
+              height={40}
+            />
           </div>
           <div className="brand-logo__text">
             <span className="brand-logo__title font-pixel">TOUCH GRASS</span>
@@ -44,7 +54,7 @@ export const LandingHeader: React.FC = () => {
           </div>
         </NavLink>
 
-        {/* Landing Navigation: Home, Features, About, Meet Sprout ONLY */}
+        {/* Landing Navigation: Home, Features, About, Meet Sprout all styled consistently */}
         <nav className="desktop-nav" aria-label="Landing Navigation">
           <ul className="nav-list">
             <li className="nav-item">
@@ -80,12 +90,13 @@ export const LandingHeader: React.FC = () => {
             <li className="nav-item">
               <NavLink
                 to="/friend"
-                className="nav-cta-btn font-pixel"
+                onClick={handleMeetSproutClick}
+                className={({ isActive }) => `nav-link ${isActive ? 'nav-link--active' : ''}`}
                 id="landing-nav-meet-sprout-btn"
                 aria-label="Meet Sprout Nature Companion"
               >
-                <Sparkles size={16} />
-                <span>Meet Sprout</span>
+                <Sparkles className="nav-icon" size={18} />
+                <span className="nav-link__text font-pixel">Meet Sprout</span>
               </NavLink>
             </li>
           </ul>
@@ -95,11 +106,12 @@ export const LandingHeader: React.FC = () => {
         <div className="landing-header__mobile-cta">
           <NavLink
             to="/friend"
-            className="nav-cta-btn font-pixel"
+            onClick={handleMeetSproutClick}
+            className="nav-link"
             aria-label="Meet Sprout Nature Companion"
           >
-            <Sparkles size={16} />
-            <span>Meet Sprout</span>
+            <Sparkles className="nav-icon" size={18} />
+            <span className="nav-link__text font-pixel">Meet Sprout</span>
           </NavLink>
         </div>
       </div>

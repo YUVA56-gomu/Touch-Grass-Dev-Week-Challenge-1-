@@ -51,7 +51,7 @@ img, svg, canvas, .pixel-art {
     transform: translateY(0px);
   }
   50% {
-    transform: translateY(-8px);
+    transform: translateY(-6px);
   }
 }
 
@@ -66,15 +66,15 @@ img, svg, canvas, .pixel-art {
 
 @keyframes swayGrass {
   0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(3deg); }
+  50% { transform: rotate(2.5deg); }
 }
 
 .animate-float {
-  animation: pixelFloat 3s ease-in-out infinite;
+  animation: pixelFloat 4.5s ease-in-out infinite;
 }
 
 .animate-pulse-glow {
-  animation: pulseGlow 2.5s ease-in-out infinite;
+  animation: pulseGlow 4s ease-in-out infinite;
 }
 
 /* Custom Scrollbar */

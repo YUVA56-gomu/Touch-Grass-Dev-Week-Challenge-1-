@@ -10,16 +10,17 @@ router = APIRouter()
 async def health_check():
     provider = get_llm_provider()
     is_configured = provider.is_configured()
-    status_note = (
-        "API key configured. Live inference unverified until first request."
-        if is_configured and not provider.is_mock
-        else "Using local mock provider fallback."
-    )
+    try:
+        is_ready, status_note = await provider.check_readiness()
+    except Exception as exc:
+        is_ready = False
+        status_note = f"Provider readiness check failed: {exc}"
+
     return HealthResponse(
         status="ok",
         service=settings.PROJECT_NAME,
         version=settings.VERSION,
         llm_provider=provider.provider_name,
-        llm_configured=is_configured,
+        llm_configured=bool(is_configured and is_ready),
         llm_status_note=status_note,
     )

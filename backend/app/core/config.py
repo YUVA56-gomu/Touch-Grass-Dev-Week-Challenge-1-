@@ -20,10 +20,15 @@ class Settings(BaseSettings):
     # CORS
     CORS_ORIGINS: Any = "http://localhost:5173,http://127.0.0.1:5173"
 
-    # LLM Provider Settings ("gemini" | "openai" | "mock")
-    LLM_PROVIDER: str = "gemini"
+    # LLM Provider Settings ("gemini" | "ollama" | "openai" | "mock")
+    LLM_PROVIDER: str = "ollama"
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-2.5-flash"
+
+    # Ollama Local Gemma Settings
+    OLLAMA_BASE_URL: str = "http://localhost:11434"
+    OLLAMA_MODEL: str = "gemma2:2b"
+    OLLAMA_TIMEOUT_SECONDS: float = 30.0
 
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-4o-mini"

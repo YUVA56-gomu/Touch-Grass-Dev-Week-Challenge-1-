@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import {
   Sparkles,
   Compass,
@@ -16,7 +16,21 @@ import { PixelCard } from '../components/pixel-ui/PixelCard';
 import sproutHeroImg from '../assets/sprout-hero.png';
 import './LandingPage.css';
 
+interface LandingOutletContext {
+  onMeetSprout?: () => void;
+}
+
 export const LandingPage: React.FC = () => {
+  const outletContext = useOutletContext<LandingOutletContext | null>();
+  const onMeetSprout = outletContext?.onMeetSprout;
+
+  const handleMeetSproutClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (onMeetSprout) {
+      e.preventDefault();
+      onMeetSprout();
+    }
+  };
+
   React.useEffect(() => {
     if (window.location.hash) {
       const elem = document.querySelector(window.location.hash);
@@ -59,6 +73,7 @@ export const LandingPage: React.FC = () => {
           <div className="landing-hero__cta-group">
             <Link
               to="/friend"
+              onClick={handleMeetSproutClick}
               className="pixel-btn-action pixel-btn-action--primary font-pixel"
               id="hero-primary-cta"
             >
@@ -136,7 +151,7 @@ export const LandingPage: React.FC = () => {
               <li>Natural speech audio powered by ElevenLabs</li>
             </ul>
             <div className="feature-card__action">
-              <Link to="/friend" className="card-cta-btn font-pixel">
+              <Link to="/friend" onClick={handleMeetSproutClick} className="card-cta-btn font-pixel">
                 Meet Sprout <ArrowRight size={14} aria-hidden="true" />
               </Link>
             </div>
@@ -281,6 +296,7 @@ export const LandingPage: React.FC = () => {
           <div className="closing-banner__actions">
             <Link
               to="/friend"
+              onClick={handleMeetSproutClick}
               className="pixel-btn-action pixel-btn-action--primary font-pixel"
               id="closing-cta-btn"
             >
@@ -298,15 +314,13 @@ export const LandingPage: React.FC = () => {
           <div className="landing-footer__brand-col">
             <div className="footer-brand">
               <div className="footer-brand__pixel-icon">
-                <svg width="22" height="22" viewBox="0 0 32 32" shapeRendering="crispEdges">
-                  <path d="M14 2h4v2h-4zM12 4h2v2h-2zM18 4h2v2h-2zM10 6h12v20H10z" fill="#174B35" />
-                  <path d="M14 6h4v4h-4zM12 10h8v12h-8z" fill="#C8F36A" />
-                  <rect x="13" y="12" width="2" height="3" fill="#174B35" />
-                  <rect x="17" y="12" width="2" height="3" fill="#174B35" />
-                  <rect x="12" y="17" width="2" height="2" fill="#F8A5C2" />
-                  <rect x="18" y="17" width="2" height="2" fill="#F8A5C2" />
-                  <path d="M14 18h4v2h-4z" fill="#174B35" />
-                </svg>
+                <img
+                  src={sproutHeroImg}
+                  alt="TOUCH GRASS Sprout mascot"
+                  className="brand-logo__image"
+                  width={36}
+                  height={36}
+                />
               </div>
               <span className="footer-brand__title font-pixel">TOUCH GRASS</span>
             </div>
@@ -346,7 +360,7 @@ export const LandingPage: React.FC = () => {
                   How It Works
                 </a>
               </li>
-              <li><Link to="/friend">Meet Sprout</Link></li>
+              <li><Link to="/friend" onClick={handleMeetSproutClick}>Meet Sprout</Link></li>
             </ul>
           </nav>
         </div>

@@ -17,6 +17,8 @@ async def chat_endpoint(request: ChatRequest):
         provider = get_llm_provider()
         response = await provider.generate_response(request)
         return response
+    except HTTPException:
+        raise
     except Exception as exc:
         logger.error("Unhandled error in chat endpoint: %s", exc, exc_info=False)
         raise HTTPException(
